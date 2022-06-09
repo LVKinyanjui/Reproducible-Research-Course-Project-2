@@ -1,0 +1,25 @@
+---
+title: "Storm Data Analysis"
+author: "LVK"
+date: "6/9/2022"
+output: html_document
+---
+
+# Exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm data from 1950 to 2011
+
+## Synopsis
+This analysis will explore various effects of severe weather conditions in the United States over a sixty year period. This will be done in order to answer relevant questions about how to deal with such weather conditions that perhaps may find use in policy direction. Exploratory graphs will be produced and findings presented at the end.
+
+
+## Data Processing
+
+```{r Downloading Storm Data} 
+# Loading data into r
+fileUrl = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+filePath = "./data/stormdata"
+dataFolder = "./data"
+
+if(!dir.exists(dataFolder)) {dir.create(dataFolder)}
+if(!file.exists(filePath)) {file.create(filePath)}
+
+```

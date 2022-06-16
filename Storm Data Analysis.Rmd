@@ -12,14 +12,53 @@ This analysis will explore various effects of severe weather conditions in the U
 
 
 ## Data Processing
+```{r}
+library(tidyverse)
+```
+
 
 ```{r Downloading Storm Data} 
-# Loading data into r
+
 fileUrl = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 filePath = "./data/stormdata"
 dataFolder = "./data"
 
 if(!dir.exists(dataFolder)) {dir.create(dataFolder)}
-if(!file.exists(filePath)) {file.create(filePath)}
+if(!file.exists(filePath)) {
+      download.file(fileUrl, filePath)
+}
+
+download_date = Sys.Date()
+```
+
+
+``` {r, cache = TRUE}
+t1 = Sys.time()
+stormdata_df = read.csv("./data/stormdata")
+t2 = Sys.time()
+t2-t1
 
 ```
+
+### Cleaning up the Dataset
+Here we shall select only the columns of interest to reduce complexity.
+``` {r}
+min_storm_df = stormdata_df %>%
+      select(BGN_DATE, TIME_ZONE, EVTYPE, WFO, F, MAG, STATE, STATE__, LENGTH, WIDTH)
+
+#modifying time variable
+min_storm_df$BGN_DATE = min_storm_df$BGN_DATE %>% 
+                              as.Date(format = "%m/%d/%Y", 
+                                      tz = min_storm_df$TIME_ZONE)
+min_storm_df
+```
+
+Next we define the official events. These are 48 in number
+``` {r} 
+events_df = read.csv("./data/Eventslist.csv")
+view(events_df)
+existing_events = unique(stormdata_df$EVTYPE)
+
+qplot(table(stormdata_df$EVTYPE))
+```
+

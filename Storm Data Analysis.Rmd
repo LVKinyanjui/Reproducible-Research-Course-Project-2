@@ -44,7 +44,7 @@ t2-t1
 Here we shall select only the columns of interest to reduce complexity.
 ``` {r}
 min_storm_df = stormdata_df %>%
-      select(BGN_DATE, TIME_ZONE, EVTYPE, WFO, F, MAG, STATE, STATE__, LENGTH, WIDTH)
+      select(BGN_DATE, TIME_ZONE, EVTYPE, WFO, F, MAG, STATE, STATE__, LENGTH, WIDTH, FATALITIES: CROPDMGEXP)
 
 #modifying time variable
 min_storm_df$BGN_DATE = min_storm_df$BGN_DATE %>% 
@@ -53,19 +53,12 @@ min_storm_df$BGN_DATE = min_storm_df$BGN_DATE %>%
 min_storm_df
 ```
 
-Next we define the official events. These are 48 in number
-``` {r} 
-events_df = read.csv("./data/Eventslist.csv")
-view(events_df)
-existing_events = unique(stormdata_df$EVTYPE)
-
-```
 
 #### Heatmap
 Let us inspect the event type EVTYPE variable
-```{r}
+```{r Heatmap}
 set.seed(10)
-x = sample(seq(1:length(end_date)), 1000, replace = FALSE)
+x = sample(seq(1:length(stormdata_df[,1])), 1000, replace = FALSE)
 
 partial_df = select(stormdata_df, EVTYPE)
 partial_tbl = partial_df[x,] %>%
@@ -76,6 +69,43 @@ partial_tbl = partial_df[x,] %>%
 distmatrix = dist(partial_tbl)
 
 heatmap(as.matrix(distmatrix), margins = c(8,5))
+
+
 ```
 I take the heatmap to mean that the unique occurences of the unique event types are relatively uniform; that is, there is only a few types that are very common. This variable needs to be cleaned up and reclassified into the 40 or so official types (down from the about 1000). This is a start. 
 
+``` {r Dendogram}
+#dendogram
+dd = hclust(distmatrix, method = "complete") %>%
+      as.dendrogram
+plot(dd)
+abline(h = 20, col = "blue")
+```
+Next we define the official events. These are 48 in number
+``` {r} 
+events_df = read.csv("./data/Eventslist.csv")
+view(events_df)
+existing_events = unique(stormdata_df$EVTYPE)
+
+```
+
+
+
+``` {r Event Distribution, cache = TRUE}
+matched = sapply(events_df$Event.Name, function(x) {
+                  grepl(x, stormdata_df[x,]$EVTYPE) %>%
+                  sum
+            })
+
+match_tbl = data.frame(
+                  x = events_df$Event.Name,
+                  y = matched
+            )
+
+# #Plotting distribution
+qplot(x,y, data = match_tbl[1:10,])
+
+# ggplot(data = match_tbl[1:10, ], aes(x,y)) +
+#       geom_histogram(stat = "identity")
+
+```

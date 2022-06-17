@@ -59,6 +59,23 @@ events_df = read.csv("./data/Eventslist.csv")
 view(events_df)
 existing_events = unique(stormdata_df$EVTYPE)
 
-qplot(table(stormdata_df$EVTYPE))
 ```
+
+#### Heatmap
+Let us inspect the event type EVTYPE variable
+```{r}
+set.seed(10)
+x = sample(seq(1:length(end_date)), 1000, replace = FALSE)
+
+partial_df = select(stormdata_df, EVTYPE)
+partial_tbl = partial_df[x,] %>%
+      table %>%
+      as.data.frame
+
+#Distance matrix and heatmap
+distmatrix = dist(partial_tbl)
+
+heatmap(as.matrix(distmatrix), margins = c(8,5))
+```
+I take the heatmap to mean that the unique occurences of the unique event types are relatively uniform; that is, there is only a few types that are very common. This variable needs to be cleaned up and reclassified into the 40 or so official types (down from the about 1000). This is a start. 
 
